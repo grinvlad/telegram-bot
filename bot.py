@@ -53,6 +53,12 @@ def print_last_three_commits(message):
     bot.send_message(message.chat.id, s)
 
 
+@bot.message_handler(commands=['file'])
+def send_welcome(message):
+    doc = open('itmo-table.csv', 'rb')
+    bot.send_document(message.chat.id, doc)
+
+
 # @bot.message_handler(func=lambda message: True)
 # def echo_all(message):
 #     bot.reply_to(message, message.text)
