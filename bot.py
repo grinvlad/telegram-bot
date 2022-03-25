@@ -1,7 +1,12 @@
-import config
+import itmotable
+
+from credentials import config
+import os
 import telebot
 import requests
 import json
+
+from itmotable import ItmoTable
 
 OWNER_REPO = 'grinvlad'
 REPO = 'optimization-methods'
@@ -32,36 +37,44 @@ def commit_to_str(commit):
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "Хуярт")
+    pass
 
 
 @bot.message_handler(commands=['help'])
 def send_welcome(message):
-    bot.reply_to(message, "Хуелп")
+    pass
 
 
-@bot.message_handler(commands=['getlastcommit'])
+@bot.message_handler(commands=['lastcommit'])
 def print_last_commit(message):
     last_commit = get_commits()[0]
     bot.send_message(message.chat.id, commit_to_str(last_commit))
 
 
-@bot.message_handler(commands=['getlastthreecommits'])
+@bot.message_handler(commands=['last3commits'])
 def print_last_three_commits(message):
     commits = get_commits()[:3]
     s = commit_to_str(commits[2]) + '\n\n\n' + commit_to_str(commits[1]) + '\n\n\n' + commit_to_str(commits[0])
     bot.send_message(message.chat.id, s)
 
 
-@bot.message_handler(commands=['file'])
-def send_welcome(message):
-    doc = open('itmo-table.csv', 'rb')
-    bot.send_document(message.chat.id, doc)
+@bot.message_handler(commands=['itmotable'])
+def send_itmo_table(message):
+    tmp = bot.reply_to(message, "Придется подождать секунд 10...")
+    try:
+        ItmoTable().collect_all_subjects().delete_dead_students(20).to_csv()
+    except itmotable.HttpError:
+        bot.send_message(message.chat.id, "Sorry, something wrong with API")
+    file = open(get_latest_file('itmo-tables-samples'), 'rb')
+    bot.send_document(message.chat.id, file)
+    bot.delete_message(message.chat.id, tmp.message_id)
+    file.close()
 
 
-# @bot.message_handler(func=lambda message: True)
-# def echo_all(message):
-#     bot.reply_to(message, message.text)
+def get_latest_file(dir_: str):
+    paths = [os.path.join(os.path.abspath(os.getcwd() + "/" + dir_), file) for file in os.listdir(dir_)]
+    latest_file = max(paths, key=os.path.getmtime)
+    return latest_file
 
 
 bot.infinity_polling()
