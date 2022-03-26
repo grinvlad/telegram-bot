@@ -1,7 +1,6 @@
-import os
 import telebot
-
 from telebot import types
+
 from credentials import config
 from mygithub import MetOptRepo
 from itmotable import ItmoTable
@@ -21,17 +20,22 @@ def send_welcome(message):
     pass
 
 
-@bot.message_handler(commands=['commits'])
+@bot.message_handler(commands=['commit'])
+def commit(message):
+    process_printing_commits_step(message, n=1)
+
+
+@bot.message_handler(commands=['3commits'])
 def commits(message):
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup.add(*MetOptRepo.team.keys(), 'всех')
     msg = bot.reply_to(message, 'Чьи коммиты посмотрим?', reply_markup=markup)
-    bot.register_next_step_handler(msg, process_printing_commits_step)
+    bot.register_next_step_handler(msg, process_printing_commits_step, n=3)
 
 
-def process_printing_commits_step(message):
+def process_printing_commits_step(message, n: int):
     repo = MetOptRepo()
-    commits = repo.commits_to_str(message.text)
+    commits = repo.commits_to_str(message.text, n)
     bot.send_message(message.chat.id, commits)
 
 
@@ -54,9 +58,13 @@ def process_send_itmo_table_step(message):
         try:
             ItmoTable().collect_all_subjects().delete_dead_students(20).sort().to_csv()
         except itmotable.HttpError:
-            bot.send_message(message.chat.id, "Sorry, something wrong with API")
+            bot.send_message(message.chat.id, "Проблема с Google Sheets API.\n"
+                                              "Отправлю пока последнюю созданную таблицу.")
         finally:
             bot.delete_message(tmp.chat.id, tmp.message_id)
+    else:
+        bot.reply_to(message, 'Тебе всего лишь надо было на кнопку нажать')
+        return
     file = open(ItmoTable.get_last_table(), 'rb')
     bot.send_document(message.chat.id, file)
     file.close()
