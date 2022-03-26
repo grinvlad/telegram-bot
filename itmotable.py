@@ -23,10 +23,10 @@ class ItmoTable:
     https://docs.google.com/spreadsheets/d/1UxWfy2n2osxERr1GvkaYydHBOwMHEUqfjNuwD6RcDQc/
     https://docs.google.com/spreadsheets/d/1X17zc7yRq7o4ge6KreFfQjbxR2B141-Ygx4nCdGeuxI/
     https://docs.google.com/spreadsheets/d/15pjGIzgfVkVJoXspghvrprrBvPCoJUQbOBA37Et2ChE/
-    https://docs.google.com/spreadsheets/d/15pjGIzgfVkVJoXspghvrprrBvPCoJUQbOBA37Et2ChE/
     https://docs.google.com/spreadsheets/d/1F3hoDX6mmFtmBKRiV-iwfp99vetHae5SwB7E-RHrjbY/
     https://docs.google.com/spreadsheets/d/1g4P-QmUCiHH1i-nKb8LBjriSEfGK4mMQdr1h2W2x3n8/
-    https://docs.google.com/spreadsheets/d/1UxWfy2n2osxERr1GvkaYydHBOwMHEUqfjNuwD6RcDQc/
+    https://docs.google.com/spreadsheets/d/1YOTxFL4CZb0cDhueUFsXEJPa4bM0GMzHBkirJBGsCHw/
+    https://docs.google.com/spreadsheets/d/13MvoS91pdRSZG9tck79PdNE46LT4KZzpiAymw4lf4Ys/
     """
 
     subject_pos = {
@@ -59,7 +59,7 @@ class ItmoTable:
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(r'credentials/sheets-credentials.json', scopes)
                 creds = flow.run_local_server(port=0)
-            with open(r'credentials/sheets-credentials.json', 'w') as token:
+            with open('credentials/sheets-credentials.json', 'w') as token:
                 token.write(creds.to_json())
         service = build('sheets', 'v4', credentials=creds)
 
@@ -72,6 +72,15 @@ class ItmoTable:
         for name, grades in self._table.items():
             s += f'{name.rjust(25)}: {grades}\n'
         return s
+
+    def collect_all_subjects(self) -> ItmoTable:
+        self._collect_discrete_math()
+        self._collect_algorithms()
+        self._collect_matlog()
+        self._collect_java()
+        self._collect_calculus()
+        self._collect_optimization_methods()
+        return self
 
     def sort(self) -> ItmoTable:
         """Sorts table by keys in lexicographical order and returns it."""
@@ -96,10 +105,9 @@ class ItmoTable:
     def to_csv(self) -> None:
         """Writes table to csv file"""
 
-        file = f'{ItmoTable._get_formatted_time()}.csv'
         directory = 'itmo-tables-samples'
+        file = f'{ItmoTable._get_formatted_time()}.csv'
         path = f'{directory}/{file}'
-
         with open(path, 'w', encoding='utf-8-sig', newline='') as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow((self._get_time(), '', '', '', '', '', ''))
@@ -114,6 +122,12 @@ class ItmoTable:
                            sheet_list='матлог',
                            names='A3:A133',
                            grades='E3:E133')
+
+        self._add_to_table(subject=subject,
+                           spread_sheet_id='13MvoS91pdRSZG9tck79PdNE46LT4KZzpiAymw4lf4Ys',
+                           sheet_list='Баллы',
+                           names='A2:A36',
+                           grades='B2:B36')
         return self
 
     def _collect_algorithms(self, subject='АиСД') -> ItmoTable:
@@ -146,6 +160,13 @@ class ItmoTable:
                            sheet_list='Лист1',
                            names='A3:A33',
                            grades='B3:B33')
+
+        # DM (34-35 offline group)
+        self._add_to_table(subject=subject,
+                           spread_sheet_id='1YOTxFL4CZb0cDhueUFsXEJPa4bM0GMzHBkirJBGsCHw',
+                           sheet_list='Лист1',
+                           names='A2:A20',
+                           grades='B2:B20')
         return self
 
     def _collect_optimization_methods(self, subject='МетОпт') -> ItmoTable:
@@ -210,15 +231,6 @@ class ItmoTable:
                            sheet_list='java',
                            names='B5:B144',
                            grades='E5:E144')
-        return self
-
-    def collect_all_subjects(self) -> ItmoTable:
-        self._collect_discrete_math()
-        self._collect_algorithms()
-        self._collect_matlog()
-        self._collect_java()
-        self._collect_calculus()
-        self._collect_optimization_methods()
         return self
 
     def _add_to_table(self, *, subject: str, spread_sheet_id: str, sheet_list: str,
