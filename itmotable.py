@@ -287,3 +287,15 @@ class ItmoTable:
             return float(grade.replace(',', '.'))
         except ValueError:
             return 0
+
+    @staticmethod
+    def get_last_table() -> str:
+        dir_ = 'itmo-tables-samples'
+        paths = [os.path.join(os.path.abspath(os.getcwd() + "/" + dir_), file) for file in os.listdir(dir_)]
+        latest_file = max(paths, key=os.path.getmtime)
+        return latest_file
+
+    # TO FIX
+    @staticmethod
+    def get_last_table_name(path: str):
+        return path.split('itmo-tables-samples')[1][1:]
