@@ -1,0 +1,31 @@
+INFO | 03/27/2022 12:11:16 AM | commit | 32 | grinvlad | /commit
+INFO | 03/27/2022 12:11:16 AM | process_printing_commits_step | 46 | grinvlad | /commit
+INFO | 03/27/2022 12:11:36 AM | commits | 38 | grinvlad | /3commits
+INFO | 03/27/2022 12:11:47 AM | process_printing_commits_step | 46 | grinvlad | Гагагага
+ERROR | 03/27/2022 12:14:20 AM | infinity_polling | 621 | Infinity polling: polling exited
+ERROR | 03/27/2022 12:14:20 AM | infinity_polling | 623 | Break infinity polling
+INFO | 03/27/2022 12:16:22 AM | commits | 38 | ptyvvs | /3commits
+INFO | 03/27/2022 12:16:31 AM | process_printing_commits_step | 46 | ptyvvs | Хей :)
+INFO | 03/27/2022 12:16:38 AM | commits | 38 | ptyvvs | /3commits
+INFO | 03/27/2022 12:16:40 AM | process_printing_commits_step | 46 | ptyvvs | Никиты
+INFO | 03/27/2022 12:16:48 AM | itmo_table | 54 | ptyvvs | /itmotable
+INFO | 03/27/2022 12:17:00 AM | process_send_itmo_table_step | 65 | ptyvvs | Хочу кнопку с анекдотами
+WARNING | 03/27/2022 12:17:00 AM | process_send_itmo_table_step | 80 | ptyvvs | Хочу кнопку с анекдотами
+INFO | 03/27/2022 12:18:06 AM | commits | 38 | grinvlad | /3commits
+INFO | 03/27/2022 12:18:07 AM | process_printing_commits_step | 46 | grinvlad | Влада
+INFO | 03/27/2022 12:18:14 AM | commit | 32 | grinvlad | /commit
+INFO | 03/27/2022 12:18:14 AM | process_printing_commits_step | 46 | grinvlad | /commit
+INFO | 03/27/2022 12:20:35 AM | commit | 32 | ptyvvs | /commit
+INFO | 03/27/2022 12:20:35 AM | process_printing_commits_step | 46 | ptyvvs | /commit
+INFO | 03/27/2022 12:20:45 AM | itmo_table | 54 | ptyvvs | /itmotable
+INFO | 03/27/2022 12:21:09 AM | process_send_itmo_table_step | 65 | ptyvvs | None
+WARNING | 03/27/2022 12:21:09 AM | process_send_itmo_table_step | 80 | ptyvvs | None
+INFO | 03/27/2022 12:25:48 AM | itmo_table | 54 | ptyvvs | /itmotable
+ERROR | 03/27/2022 12:27:03 AM | infinity_polling | 621 | Infinity polling: polling exited
+ERROR | 03/27/2022 12:27:03 AM | infinity_polling | 623 | Break infinity polling
+INFO | 03/27/2022 12:33:00 AM | commit | 32 | grinvlad | /commit
+INFO | 03/27/2022 12:33:00 AM | process_printing_commits_step | 46 | grinvlad | /commit
+INFO | 03/27/2022 12:33:08 AM | itmo_table | 54 | grinvlad | /itmotable
+INFO | 03/27/2022 12:33:19 AM | process_send_itmo_table_step | 65 | grinvlad | Последнюю готовую
+ERROR | 03/27/2022 12:37:34 AM | infinity_polling | 621 | Infinity polling: polling exited
+ERROR | 03/27/2022 12:37:34 AM | infinity_polling | 623 | Break infinity polling
