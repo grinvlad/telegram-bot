@@ -1,11 +1,11 @@
 import telebot
-from telebot import types
+import logging
 
 from credentials import config
 from mygithub import MetOptRepo
 from itmotable import ItmoTable
+from memes import Meme
 import itmotable
-import logging
 
 
 bot = telebot.TeleBot(config.bot_token)
@@ -36,7 +36,7 @@ def commit(message):
 @bot.message_handler(commands=['3commits'])
 def commits(message):
     logging.info(f'{message.from_user.username} | {message.text}')
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup.add(*MetOptRepo.team.keys(), 'всех')
     msg = bot.reply_to(message, 'Чьи коммиты посмотрим?', reply_markup=markup)
     bot.register_next_step_handler(msg, process_printing_commits_step, n=3)
@@ -52,7 +52,7 @@ def process_printing_commits_step(message, n: int):
 @bot.message_handler(commands=['itmotable'])
 def itmo_table(message):
     logging.info(f'{message.from_user.username} | {message.text}')
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup.add('Последнюю готовую', 'Новую')
     file_name = ItmoTable.get_last_table_name(ItmoTable.get_last_table())
     msg = bot.reply_to(message, f'Взять \n'
@@ -83,6 +83,12 @@ def process_send_itmo_table_step(message):
     file = open(ItmoTable.get_last_table(), 'rb')
     bot.send_document(message.chat.id, file)
     file.close()
+
+
+@bot.message_handler(func=Meme.when_to_send_meme)
+def send_random_meme(message):
+    bot.send_photo(message.chat.id, Meme.get_random_url())
+    logging.info(f'{message.from_user.username} | {message.text}')
 
 
 bot.infinity_polling()
