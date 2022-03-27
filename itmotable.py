@@ -29,6 +29,27 @@ class ItmoTable:
     https://docs.google.com/spreadsheets/d/13MvoS91pdRSZG9tck79PdNE46LT4KZzpiAymw4lf4Ys/
     """
 
+    """
+    Static initialization of Google Sheets API.
+
+    Copied from here:
+    https://developers.google.com/sheets/api/quickstart/python
+    """
+    _scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+    _creds = None
+    if os.path.exists('credentials/sheets-token.json'):
+        _creds = Credentials.from_authorized_user_file('credentials/sheets-token.json', _scopes)
+    if not _creds or not _creds.valid:
+        if _creds and _creds.expired and _creds.refresh_token:
+            _creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(r'credentials/sheets-credentials.json', _scopes)
+            creds = flow.run_local_server(port=0)
+        with open('credentials/sheets-credentials.json', 'w') as token:
+            token.write(_creds.to_json())
+    _service = build('sheets', 'v4', credentials=_creds)
+    _sheet = _service.spreadsheets()
+
     subject_pos = {
         'Java': 0,
         'ДМ': 1,
@@ -42,30 +63,7 @@ class ItmoTable:
     subjects_count = len(subject_pos)
 
     def __init__(self):
-        """
-        Initialization of Google Sheets API.
-
-        Copied from here:
-        https://developers.google.com/sheets/api/quickstart/python
-        """
-
-        scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-        creds = None
-        if os.path.exists('credentials/sheets-token.json'):
-            creds = Credentials.from_authorized_user_file('credentials/sheets-token.json', scopes)
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(r'credentials/sheets-credentials.json', scopes)
-                creds = flow.run_local_server(port=0)
-            with open('credentials/sheets-credentials.json', 'w') as token:
-                token.write(creds.to_json())
-        service = build('sheets', 'v4', credentials=creds)
-
-        self._sheet = service.spreadsheets()
         self._table = {}
-        self._api_error = None
 
     def __str__(self):
         s = ''
@@ -249,12 +247,12 @@ class ItmoTable:
 
         try:
             # Call the Sheets API
-            names = self._sheet.values().get(spreadsheetId=spread_sheet_id,
-                                             range=f'{sheet_list}!{names}',
-                                             majorDimension=major_dimension).execute().get('values', [])[0]
-            grades = self._sheet.values().get(spreadsheetId=spread_sheet_id,
-                                              range=f'{sheet_list}!{grades}',
-                                              majorDimension=major_dimension).execute().get('values', [])[0]
+            names = ItmoTable._sheet.values().get(spreadsheetId=spread_sheet_id,
+                                                  range=f'{sheet_list}!{names}',
+                                                  majorDimension=major_dimension).execute().get('values', [])[0]
+            grades = ItmoTable._sheet.values().get(spreadsheetId=spread_sheet_id,
+                                                   range=f'{sheet_list}!{grades}',
+                                                   majorDimension=major_dimension).execute().get('values', [])[0]
         except HttpError as err:
             raise err
 
@@ -291,11 +289,10 @@ class ItmoTable:
     @staticmethod
     def get_last_table() -> str:
         dir_ = 'itmo-tables-samples'
-        paths = [os.path.join(os.path.abspath(os.getcwd() + "/" + dir_), file) for file in os.listdir(dir_)]
+        paths = [os.path.join(os.path.abspath(dir_), file) for file in os.listdir(dir_)]
         latest_file = max(paths, key=os.path.getmtime)
         return latest_file
 
-    # TO FIX
     @staticmethod
     def get_last_table_name(path: str):
         return path.split('itmo-tables-samples')[1][1:]
