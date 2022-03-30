@@ -1,3 +1,4 @@
 credentials/*
 .idea/
 __pycache__/
+*.log
