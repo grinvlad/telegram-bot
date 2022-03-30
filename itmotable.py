@@ -43,9 +43,9 @@ class ItmoTable:
         if _creds and _creds.expired and _creds.refresh_token:
             _creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(r'credentials/sheets-credentials.json', _scopes)
-            creds = flow.run_local_server(port=0)
-        with open('credentials/sheets-credentials.json', 'w') as token:
+            flow = InstalledAppFlow.from_client_secrets_file('credentials/sheets-credentials.json', _scopes)
+            _creds = flow.run_local_server(port=0)
+        with open('credentials/sheets-token.json', 'w') as token:
             token.write(_creds.to_json())
     _service = build('sheets', 'v4', credentials=_creds)
     _sheet = _service.spreadsheets()
