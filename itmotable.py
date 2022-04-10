@@ -3,7 +3,6 @@ from __future__ import annotations
 import csv
 import json
 import os
-import re
 
 from datetime import datetime
 from google.auth.transport.requests import Request
@@ -29,27 +28,6 @@ class ItmoTable:
     https://docs.google.com/spreadsheets/d/13MvoS91pdRSZG9tck79PdNE46LT4KZzpiAymw4lf4Ys/
     """
 
-    """
-    Static initialization of Google Sheets API.
-
-    Copied from here:
-    https://developers.google.com/sheets/api/quickstart/python
-    """
-    _scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-    _creds = None
-    if os.path.exists('credentials/sheets-token.json'):
-        _creds = Credentials.from_authorized_user_file('credentials/sheets-token.json', _scopes)
-    if not _creds or not _creds.valid:
-        if _creds and _creds.expired and _creds.refresh_token:
-            _creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials/sheets-credentials.json', _scopes)
-            _creds = flow.run_local_server(port=0)
-        with open('credentials/sheets-token.json', 'w') as token:
-            token.write(_creds.to_json())
-    _service = build('sheets', 'v4', credentials=_creds)
-    _sheet = _service.spreadsheets()
-
     subject_pos = {
         'Java': 0,
         'ДМ': 1,
@@ -63,6 +41,26 @@ class ItmoTable:
     subjects_count = len(subject_pos)
 
     def __init__(self):
+        """
+        Initialization of Google Sheets API.
+
+        Copied from here:
+        https://developers.google.com/sheets/api/quickstart/python
+        """
+        _scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+        _creds = None
+        if os.path.exists('credentials/sheets-token.json'):
+            _creds = Credentials.from_authorized_user_file('credentials/sheets-token.json', _scopes)
+        if not _creds or not _creds.valid:
+            if _creds and _creds.expired and _creds.refresh_token:
+                _creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file('credentials/sheets-credentials.json', _scopes)
+                _creds = flow.run_local_server(port=0)
+            with open('credentials/sheets-token.json', 'w') as token:
+                token.write(_creds.to_json())
+        _service = build('sheets', 'v4', credentials=_creds)
+        self._sheet = _service.spreadsheets()
         self._table = {}
 
     def __str__(self):
@@ -104,11 +102,11 @@ class ItmoTable:
         """Writes table to csv file"""
 
         directory = 'itmo-tables-samples'
-        file = f'{ItmoTable._get_formatted_time()}.csv'
+        file = f'{get_formatted_time_for_file_name()}.csv'
         path = f'{directory}/{file}'
         with open(path, 'w', encoding='utf-8-sig', newline='') as csv_file:
             writer = csv.writer(csv_file)
-            writer.writerow((self._get_time(), '', '', '', '', '', ''))
+            writer.writerow((get_time(), '', '', '', '', '', ''))
             writer.writerow(('Студент', *ItmoTable.subject_pos.keys()))
             for student, grades in self._table.items():
                 writer.writerow((student, *grades))
@@ -247,12 +245,12 @@ class ItmoTable:
 
         try:
             # Call the Sheets API
-            names = ItmoTable._sheet.values().get(spreadsheetId=spread_sheet_id,
-                                                  range=f'{sheet_list}!{names}',
-                                                  majorDimension=major_dimension).execute().get('values', [])[0]
-            grades = ItmoTable._sheet.values().get(spreadsheetId=spread_sheet_id,
-                                                   range=f'{sheet_list}!{grades}',
-                                                   majorDimension=major_dimension).execute().get('values', [])[0]
+            names = self._sheet.values().get(spreadsheetId=spread_sheet_id,
+                                             range=f'{sheet_list}!{names}',
+                                             majorDimension=major_dimension).execute().get('values', [])[0]
+            grades = self._sheet.values().get(spreadsheetId=spread_sheet_id,
+                                              range=f'{sheet_list}!{grades}',
+                                              majorDimension=major_dimension).execute().get('values', [])[0]
         except HttpError as err:
             raise err
 
@@ -261,14 +259,6 @@ class ItmoTable:
             if name not in self._table:
                 self._table[name] = [0] * ItmoTable.subjects_count
             self._table[name][ItmoTable.subject_pos[subject]] = ItmoTable._convert_grade(grade)
-
-    @staticmethod
-    def _get_time() -> str:
-        return str(datetime.now()).split('.')[0]
-
-    @staticmethod
-    def _get_formatted_time() -> str:
-        return re.sub('[ :]', '-', ItmoTable._get_time())
 
     @staticmethod
     def _remove_patronymic(name: str) -> str:
@@ -286,13 +276,21 @@ class ItmoTable:
         except ValueError:
             return 0
 
-    @staticmethod
-    def get_last_table() -> str:
-        dir_ = 'itmo-tables-samples'
-        paths = [os.path.join(os.path.abspath(dir_), file) for file in os.listdir(dir_)]
-        latest_file = max(paths, key=os.path.getmtime)
-        return latest_file
 
-    @staticmethod
-    def get_last_table_name(path: str):
-        return path.split('itmo-tables-samples')[1][1:]
+def get_time() -> str:
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+
+def get_formatted_time_for_file_name() -> str:
+    return datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+
+
+def get_last_table() -> str:
+    dir_ = 'itmo-tables-samples'
+    paths = [os.path.join(os.path.abspath(dir_), file) for file in os.listdir(dir_)]
+    latest_file = max(paths, key=os.path.getmtime)
+    return latest_file
+
+
+def get_last_table_name(path: str):
+    return path.split('itmo-tables-samples')[1][1:]
