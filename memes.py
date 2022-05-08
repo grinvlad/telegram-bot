@@ -1,5 +1,4 @@
 import random
-from random import randrange
 
 
 class Meme:
@@ -12,7 +11,7 @@ class Meme:
     @classmethod
     def _make_random_queue(cls):
         with open('utils/memes.txt', 'r') as meme_file:
-            memes = meme_file.read().split('\n')
+            memes = meme_file.read().strip(' \n').split('\n')
         cls.meme_queue = random.sample(memes, len(memes))
 
     @classmethod
