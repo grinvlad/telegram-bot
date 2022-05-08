@@ -1,3 +1,6 @@
+import random
+import re
+
 import telebot
 
 from credentials import config
@@ -80,7 +83,7 @@ def process_send_itmo_table_step(message):
 @bot.message_handler(func=Meme.when_to_send_meme)
 @log
 def send_random_meme(message):
-    bot.send_photo(message.chat.id, Meme.get_random_url())
+    bot.send_photo(message.chat.id, Meme().get_random_url())
 
 
 bot.infinity_polling()
