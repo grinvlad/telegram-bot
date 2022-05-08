@@ -1,14 +1,23 @@
+import random
 from random import randrange
 
 
 class Meme:
-    with open('utils/memes.txt', 'r') as meme_file:
-        _memes = meme_file.read().split('\n')
-    n = len(_memes)
+    meme_queue: list[str] | None = None
 
-    @staticmethod
-    def get_random_url():
-        return Meme._memes[randrange(Meme.n)]
+    def __init__(self):
+        if not type(self).meme_queue:
+            type(self)._make_random_queue()
+
+    @classmethod
+    def _make_random_queue(cls):
+        with open('utils/memes.txt', 'r') as meme_file:
+            memes = meme_file.read().split('\n')
+        cls.meme_queue = random.sample(memes, len(memes))
+
+    @classmethod
+    def get_random_url(cls):
+        return cls.meme_queue.pop()
 
     @staticmethod
     def when_to_send_meme(message):
