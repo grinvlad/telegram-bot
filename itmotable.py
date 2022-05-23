@@ -10,6 +10,11 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from google.auth.exceptions import RefreshError
+
+
+class ItmoTableException(Exception):
+    pass
 
 
 class ItmoTable:
@@ -53,7 +58,10 @@ class ItmoTable:
             _creds = Credentials.from_authorized_user_file('credentials/sheets-token.json', _scopes)
         if not _creds or not _creds.valid:
             if _creds and _creds.expired and _creds.refresh_token:
-                _creds.refresh(Request())
+                try:
+                    _creds.refresh(Request())
+                except RefreshError:
+                    raise ItmoTableException('Не удалось обновить Google Sheets API credentials :(')
             else:
                 flow = InstalledAppFlow.from_client_secrets_file('credentials/sheets-credentials.json', _scopes)
                 _creds = flow.run_local_server(port=0)
@@ -252,7 +260,7 @@ class ItmoTable:
                                               range=f'{sheet_list}!{grades}',
                                               majorDimension=major_dimension).execute().get('values', [])[0]
         except HttpError as err:
-            raise err
+            raise ItmoTableException('Проблема с Google Sheets API.')
 
         for name, grade in zip(names, grades):
             name = ItmoTable._remove_patronymic(name)

@@ -66,9 +66,8 @@ def process_send_itmo_table_step(message):
         tmp = bot.reply_to(message, 'Тогда подожди немного...')
         try:
             ItmoTable().collect_all_subjects().delete_dead_students(20).sort().to_csv()
-        except itmotable.HttpError:
-            bot.send_message(message.chat.id, "Проблема с Google Sheets API.\n"
-                                              "Отправлю пока последнюю созданную таблицу.")
+        except itmotable.ItmoTableException as e:
+            bot.send_message(message.chat.id, str(e))
         finally:
             bot.delete_message(tmp.chat.id, tmp.message_id)
     else:
